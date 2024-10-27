@@ -8,7 +8,7 @@ services:
     container_name: hospital_laravel
     restart: unless-stopped
     ports:
-      - "8000:8000"  # Expose de poort van de container naar de host
+      - "8001:8000"  # Expose de poort van de container naar de host
     volumes:
       - ./laravelWebsite/app/hospitalWebsite:/app  # Houd de Laravel-applicatie in sync
     environment:
@@ -27,12 +27,20 @@ services:
     container_name: hospital_laravel_db
     restart: unless-stopped
     environment:
-      - MARIADB_DATABASE=hospital_database
+      - MARIADB_DATABASE=hospital_laravel_database
       - MARIADB_USER=laravel
       - MARIADB_PASSWORD=laravelPwd
       - MARIADB_ROOT_PASSWORD=root
     volumes:
       - ./laravelWebsite/db_data:/var/lib/mysql
+    networks:
+      - hospital_network
+
+  adminer:
+    image: adminer:4.8.1-standalone
+    restart: unless-stopped
+    ports:
+      - 9090:8080
     networks:
       - hospital_network
 
