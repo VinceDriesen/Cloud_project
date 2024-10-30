@@ -1,16 +1,18 @@
-version: '3.8'
+# version: '3.8'
 
 services:
+  # Laravel-applicatie
   laravel_app:
+    image: laravel_app
     build:
       context: ./laravelWebsite
       dockerfile: Dockerfile
     container_name: hospital_laravel
     restart: unless-stopped
     ports:
-      - "8001:8000"  # Expose de poort van de container naar de host
+      - "8001:8000"
     volumes:
-      - ./laravelWebsite/app/hospitalWebsite:/app  # Houd de Laravel-applicatie in sync
+      - ./laravelWebsite/app/hospitalWebsite:/app
     environment:
       - DB_HOST=db_laravel
       - DB_PORT=3306
@@ -36,11 +38,42 @@ services:
     networks:
       - hospital_network
 
+  # Microservices
+  # User Profile Service
+  user_profile_api_service:
+    container_name: user_profile_api_service
+    build:
+      context: ./services/userProfileAPI/userProfileAPI
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8002:5109"
+    depends_on:
+      - db_user_profile
+    volumes:
+      - ./services/userProfileAPI/userProfileAPI:/app
+    networks:
+      - hospital_network
+
+  db_user_profile:
+    container_name: db_user_profile
+    image: postgres:14
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=user_profile_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./services/userProfileAPI/db_data:/var/lib/postgresql/data
+    networks:
+      - hospital_network
+
   adminer:
     image: adminer:4.8.1-standalone
     restart: unless-stopped
     ports:
-      - 9090:8080
+      - "8080:8080"
     networks:
       - hospital_network
 

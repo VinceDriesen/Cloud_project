@@ -1,0 +1,16 @@
+# Ignore build outputs and user-specific files
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.dbmdl
+*.vscode/
+.vscode/
+.local
+.dotnet
+.nuget
+# Ignore Rider & ReSharper
+.idea/
+*.sln.iml
