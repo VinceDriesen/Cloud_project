@@ -1,6 +1,6 @@
 using SoapCore;
 using Microsoft.EntityFrameworkCore;
-using userProfileAPI.Models;
+using userProfileAPIService.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString = "Host=postgres;Port=5432;Database=user_profile_database;Username=postgres;Password=postgres;";
+var connectionString = "Host=postgres;Port=5433;Database=user_profile_database;Username=postgres;Password=postgres;";
 builder.Services.AddDbContext<ProfileContext>(options =>
     options.UseNpgsql(connectionString, npgsqlOptions => 
         npgsqlOptions.EnableRetryOnFailure()));

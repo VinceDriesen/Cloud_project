@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using userProfileAPI.Models;
+using userProfileAPIService.Models;
 
-namespace userProfileAPI.Controllers
+namespace userProfileAPIService.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

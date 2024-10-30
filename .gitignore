@@ -1,5 +1,6 @@
 /laravelWebsite/db_data/
 /userProfileService/db_data/
 /services/userProfileAPI/db_data/
-/services/userProfileAPI/userProfileAPI/bin
+/services/userProfileAPI/userProfileAPIService/bin
+/services/userProfileAPI/userProfileAPIService/.bash_history
 .idea

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace userProfileAPI.Models;
+namespace userProfileAPIService.Models;
 
 public class ProfileContext : DbContext
 {
