@@ -1,0 +1,84 @@
+#version: '3.8'
+
+services:
+# Laravel-applicatie
+laravel_app:
+image: laravel_app
+build:
+context: ./laravelWebsite
+dockerfile: Dockerfile
+container_name: hospital_laravel
+restart: unless-stopped
+ports:
+- "8001:8000"  # Expose de poort van de container naar de host
+volumes:
+- ./laravelWebsite/app/hospitalWebsite:/app  # Houd de Laravel-applicatie in sync
+environment:
+- DB_HOST=db_laravel
+- DB_PORT=3306
+- DB_DATABASE=hospital_laravel_database
+- DB_USERNAME=laravel
+- DB_PASSWORD=laravelPwd
+depends_on:
+- db_laravel
+networks:
+- hospital_network
+
+db_laravel:
+image: mariadb:10.6.19-focal
+container_name: hospital_laravel_db
+restart: unless-stopped
+environment:
+- MARIADB_DATABASE=hospital_laravel_database
+- MARIADB_USER=laravel
+- MARIADB_PASSWORD=laravelPwd
+- MARIADB_ROOT_PASSWORD=root
+volumes:
+- ./laravelWebsite/db_data:/var/lib/mysql
+networks:
+- hospital_network
+
+# Microservices
+# User Profile Service
+user_profile_API_service:
+image: user_profile_api_service
+build:
+context: .
+dockerfile: services/userProfileAPI/userProfileAPI/Dockerfile
+container_name: user_profile_service
+restart: unless-stopped
+ports:
+- "5000:5000"
+- "5001:5001"
+environment:
+- ConnectionStrings__DefaultConnection=User ID=postgres;Password=postgres;Server=db_user_profile;Port=5432;Database=user_profile_database;IntegratedSecurity=true;Pooling=true;
+- ASPNETCORE_URLS=http://+:5000
+depends_on:
+db_user_profile
+networks:
+- hospital_network
+
+db_user_profile:
+image: postgres:14
+environment:
+- POSTGRES_USER=postgres
+- POSTGRES_PASSWORD=postgres
+- POSTGRES_DB=user_profile_database
+ports:
+- "5432:5432"
+volumes:
+- ./services/userProfileAPI/db_data:/var/lib/postgresql/data
+networks:
+- hospital_network
+
+adminer:
+image: adminer:4.8.1-standalone
+restart: unless-stopped
+ports:
+- "9092:8080"
+networks:
+- hospital_network
+
+networks:
+hospital_network:
+driver: bridge
