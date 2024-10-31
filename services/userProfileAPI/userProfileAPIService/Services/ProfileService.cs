@@ -14,27 +14,95 @@ public class ProfileService : IProfileService
         _context = context;
     }
 
-    public Profile GetProfileById(long userId)
+    public Profile? GetProfileById(long userId)
     {
-        return _context.Profiles.Include(p => p.Address).FirstOrDefault(p => p.UserId == userId);
+        if (userId <= 0)
+            throw new ArgumentException($"Invalid UserId. The userID is: {userId}", nameof(userId));
+    
+        var profile = _context.Profiles
+            .Include(p => p.Address)
+            .FirstOrDefault(p => p.UserId == userId);
+
+        return profile;
     }
+
 
     public List<Profile> GetAllProfiles()
     {
         return _context.Profiles.Include(p => p.Address).ToList();
     }
 
-    public bool CreateProfile(Profile profile)
+    public bool CreateProfile(int userId)
     {
+
+        if (userId <= 0) throw new ArgumentException($"Invalid UserId. The userID is: {userId}", nameof(userId));
+
+        var profile = new Profile
+        {
+            UserId = userId,
+            Gender = null, // Of stel deze in op een standaardwaarde
+            Birthday = null, // Of stel deze in op een standaardwaarde
+            Nationality = null, // Of stel deze in op een standaardwaarde
+            PhoneNumber = null, // Of stel deze in op een standaardwaarde
+            Address = null // Of voeg een nieuw adres object toe indien nodig
+        };
+
         _context.Profiles.Add(profile);
         return _context.SaveChanges() > 0;
     }
 
-    public bool UpdateProfile(Profile profile)
+
+    public bool UpdateProfile(
+        long userId,
+        string gender,
+        DateTime? birthday,
+        string nationality,
+        string phoneNumber,
+        string city,
+        string country,
+        string postalCode,
+        string state,
+        string street
+        )
     {
-        _context.Profiles.Update(profile);
+        var existingProfile = _context.Profiles.Include(p => p.Address).FirstOrDefault(p => p.UserId == userId);
+        if (existingProfile == null)
+        {
+            throw new ArgumentException($"Profile with UserId {userId} does not exist");
+        }
+
+        switch (gender)
+        {
+            case "Male":
+                existingProfile.Gender = Gender.Male;
+                break;
+            case "Female":
+                existingProfile.Gender = Gender.Female;
+                break;
+            case "Other":
+                existingProfile.Gender = Gender.Other;
+                break;
+        }
+
+        existingProfile.Birthday = birthday?.ToUniversalTime();
+
+        existingProfile.Nationality = nationality;
+        existingProfile.PhoneNumber = phoneNumber;
+        
+        Address address = existingProfile.Address ?? new Address();
+        address.City = city;
+        address.Country = country;
+        address.PostalCode = postalCode;
+        address.State = state;
+        address.Street = street;
+        existingProfile.Address = address;
+
+
+        _context.Profiles.Update(existingProfile);
         return _context.SaveChanges() > 0;
     }
+
+
 
     public bool DeleteProfile(long userId)
     {

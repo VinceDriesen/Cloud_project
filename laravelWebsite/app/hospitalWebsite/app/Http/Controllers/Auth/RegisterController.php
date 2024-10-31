@@ -7,45 +7,20 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class RegisterController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Register Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
-    */
-
     use RegistersUsers;
 
-    /**
-     * Where to redirect users after registration.
-     *
-     * @var string
-     */
     protected $redirectTo = '/dashboard';
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param  array  $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
     protected function validator(array $data)
     {
         return Validator::make($data, [
@@ -57,28 +32,79 @@ class RegisterController extends Controller
         ], [
             'firstname.required' => 'Please provide a firstname',
             'lastname.required' => 'Please provide a lastname',
-            'email.required' => 'Please provide a email',
+            'email.required' => 'Please provide an email',
             'password.required' => 'Please provide a password',
-            'password_confirmation.required' => 'Please provide a the same password',
-            'password.min' => 'Please provide a valid password. Contain minimum of 8 characters consisting of a symbel and digit',
+            'password_confirmation.required' => 'Please provide the same password',
+            'password.min' => 'Please provide a valid password. Contain minimum of 8 characters consisting of a symbol and digit',
             'password.confirmed' => 'Verify password and password are not the same',
             'email.email' => 'Please provide a valid email',
         ]);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
     protected function create(array $data)
     {
-        return User::create([
-            'firstname' => $data['firstname'],
-            'lastname' => $data['lastname'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        DB::beginTransaction();
+
+        try {
+            $user = User::create([
+                'firstname' => $data['firstname'],
+                'lastname' => $data['lastname'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+            ]);
+
+            $profileResult = $this->createProfile($user);
+
+            if (!$profileResult) {
+                throw new \Exception("Profiel aanmaken is mislukt.");
+            }
+
+            DB::commit();
+            return $user;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Fout bij registratie: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function createProfile(User $user)
+    {
+        Log::info("createProfile aangeroepen voor gebruiker ID: {$user->id}");
+
+        if (!$user) {
+            Log::error("User not found");
+            return false;
+        }
+
+        $userId = $user->id;
+
+        try {
+            $soapClient = new \SoapClient("http://user_profile_api:5109/ProfileService.asmx?wsdl");
+
+            $params = ['userId' => $userId];
+            Log::info("SOAP Request Parameters (GetProfileById): " . json_encode($params));
+
+            $testResponse = $soapClient->__soapCall('GetProfileById', [$params]);
+
+            if (empty((array)$testResponse)) {
+                Log::info("Profiel niet gevonden, maak een nieuw profiel aan");
+                Log::info("SOAP Request Parameters (CreateProfile): " . json_encode($params));
+
+                $mainResponse = $soapClient->__soapCall('CreateProfile', [$params]);
+
+                if (!empty((array)$mainResponse)) {
+                    Log::info("Profiel succesvol aangemaakt voor gebruiker ID: {$userId}");
+                    return true;
+                } else {
+                    throw new \Exception("Fout bij aanmaken profiel voor gebruiker ID: {$userId}. Geen resultaat terug ontvangen.");
+                }
+            } else {
+                throw new \Exception("Error bij aanmaken van Profiel voor gebruiker ID: {$userId}. Profiel bestaat al. Antwoord: " . json_encode($testResponse));
+            }
+        } catch (\Exception $e) {
+            Log::error("Fout bij aanmaken profiel: " . $e->getMessage());
+            return false;
+        }
     }
 }

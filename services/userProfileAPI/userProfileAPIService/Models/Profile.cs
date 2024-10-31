@@ -13,17 +13,16 @@ public class Profile
     public Gender? Gender { get; set; }
 
     [DataMember] 
-    public string? Birthday { get; set; }
+    public DateTime? Birthday { get; set; }
 
     [DataMember]
     public string? Nationality { get; set; }
     
     [DataMember]
-    public int? SocialSecurityNumber { get; set; }
-    
-    [DataMember]
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     
     [DataMember]
     public Address? Address { get; set; }
+
+    
 }

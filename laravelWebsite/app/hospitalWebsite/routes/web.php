@@ -12,4 +12,6 @@ Auth::routes();
 
 Route::get('/signout', [App\Http\Controllers\Auth\SignoutController::class, 'index'])->name('signout');
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/profileSettings', [\App\Http\Controllers\user\ProfileSettingsController::class, 'index'])->name('profileSettings');
 Route::get('/dashboard', [\App\Http\Controllers\user\DashboardController::class, 'index'])->name('dashboard');
+Route::post('/updateProfile', [\App\Http\Controllers\user\ProfileSettingsController::class, 'updateProfile'])->name('updateProfile');

@@ -33,6 +33,7 @@
                 <a href="/login" class="pl-2 pr-2 p-1 hover:bg-active-footer-header hover:rounded-2xl">Sign In</a>
                 <a id="signUp" href="/register" class="pl-2 pr-2 p-1 hover:bg-active-footer-header hover:rounded-2xl">SignUp</a>
             @else
+                <a href="/profileSettings" class="pl-2 pr-2 p-1 hover:bg-active-footer-header hover:rounded-2xl">Profile</a>
                 <a href="/signout" class="pl-2 pr-2 p-1 hover:bg-active-footer-header hover:rounded-2xl">Log Out</a>
             @endif
             <form action="/change-theme" method="POST">
