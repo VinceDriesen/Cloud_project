@@ -4,3 +4,9 @@
 /services/userProfileAPI/userProfileAPIService/bin
 /services/userProfileAPI/userProfileAPIService/.bash_history
 .idea
+**db_data/
+**/.idea
+**/.vscode
+**/node_modules
+**/bin
+**/.bash_history

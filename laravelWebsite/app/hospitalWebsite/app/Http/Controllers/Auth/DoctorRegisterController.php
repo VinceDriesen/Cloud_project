@@ -3,23 +3,24 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Doctor;
 use App\Models\User;
 use App\traits\UserProfileManager;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
-class RegisterController extends Controller
+class DoctorRegisterController extends Controller
 {
     use UserProfileManager;
 
-    protected $redirectTo = '/dashboard';
+    protected $redirectTo = '/doctor/login';
 
     public function index()
     {
-        return view('auth.register');
+        return view('auth.doctorRegister');
     }
 
     public function __construct()
@@ -59,11 +60,9 @@ class RegisterController extends Controller
                 'password' => Hash::make($data['password']),
             ]);
 
-            $profileResult = $this->createProfile($user);
-
-            if (!$profileResult) {
-                throw new \Exception("Profiel aanmaken is mislukt.");
-            }
+            $doctor = Doctor::create([
+                'user_id' => $user->id,
+            ]);
 
             $this->createProfile($user);
 
@@ -74,5 +73,14 @@ class RegisterController extends Controller
             Log::error("Fout bij registratie: " . $e->getMessage());
             throw $e;
         }
+    }
+
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        $user = $this->create($request->all());
+
+        return redirect($this->redirectTo);
     }
 }

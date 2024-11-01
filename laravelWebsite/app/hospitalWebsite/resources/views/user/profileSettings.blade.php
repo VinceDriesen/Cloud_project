@@ -44,10 +44,10 @@
                 <label for="gender" class="text-sm font-medium leading-6 text-secondary-text-color">Geslacht:</label>
                 <select id="gender" name="gender"
                         class="w-full border-2 rounded-lg px-2 mb-4 py-1 border-bordercolor bg-transparent outline-none text-primary-text-color">
-                    <option value="" disabled {{ $userDetails->Gender === null ? 'selected' : '' }}>Kies een optie</option>
-                    <option value="Male" {{ $userDetails->Gender === 'Male' ? 'selected' : '' }}>Man</option>
-                    <option value="Female" {{ $userDetails->Gender === 'Female' ? 'selected' : '' }}>Vrouw</option>
-                    <option value="Other" {{ $userDetails->Gender === 'Other' ? 'selected' : '' }}>Anders</option>
+                    <option value="" disabled {{ !isset($userDetails) || $userDetails->Gender === null ? 'selected' : '' }}>Kies een optie</option>
+                    <option value="Male" {{ isset($userDetails) && $userDetails->Gender === 'Male' ? 'selected' : '' }}>Man</option>
+                    <option value="Female" {{ isset($userDetails) && $userDetails->Gender === 'Female' ? 'selected' : '' }}>Vrouw</option>
+                    <option value="Other" {{ isset($userDetails) && $userDetails->Gender === 'Other' ? 'selected' : '' }}>Anders</option>
                 </select>
 
                 <label for="birthday" class="text-sm font-medium leading-6 text-secondary-text-color">Geboortedatum:</label>

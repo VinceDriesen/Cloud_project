@@ -1,4 +1,6 @@
-Dit is mijn tweede poging voor het school project van Cloud computing
+Dit is mijn poging voor het school project van Cloud computing
+Voor de databases integratie bij mijn services heb ik steeds voor een andere database gekozen i.p.v. steeds dezelfde te gebruiken. 
+Dit heb ik gedaan om meer kennis op te doen van de verschillende soorten databases. Dit behoort niet direct tot dit vak, maar wou het zelf doen.
 
 -- Laravel deel --
 Hierin komt het volledige laravel project waarin in alle api's ga willen aansturen.
@@ -53,3 +55,33 @@ Je kan met de database verbinden via adminer:
     - Username: postgres
     - Password: postgres
     - Database: user_profile_database
+
+-- Services - agendaAPIService --
+Deze service is voor agendas te kunnen maken, met afspraken. Elke agenda is van een owner met id die van laravel
+Ook kan je dan indien het van een dokter is een afspraak maken, en deze dan van de owner met id die van laravel.
+Ik heb hier gebruik van database TimescaleDB, dit is gebouwd op postgreSQL met C, de service heb ik geschreven in GOLANG en maakt gebruik van GraphQL.
+Ik heb gekozen voor Go aangezien hier een heel makkelijke library voor is om samen te werken met GraphQL.
+Ook omdat ik zelf nog geen Go kon, dus nu ken ik er al de basics van. Ik had het ook met Python kunnen doen in de les, maar wou wat moeilijker.
+
+De TimescaleDB heb ik gebruikt aangezien ik wel wou gebruik maken van postgreSQL, en had dit gevonden op Google, dus wou ik het eens proberen.
+Ook aangezien dit veel sneller is als je veel gebruik maakt van timestamps. Dit moet ik echter nog ondervinden. 
+
+Echter heb ik wel gemerkt dat Go niet heel makkelijk is om met databases te werken zoals Laravel of .C# met .NET. 
+Om bv tables te maken moet je je eigen MIGRATIONS schrijven, wat het iets ingewikkelder maakt
+
+Om in de docker/shell te gaan maak dan gebruik van 
+    docker exec -it agenda_api /bin/sh 
+
+Verder moet je dan gebruik maken van graphQl door de volgende commandos:
+    go run github.com/99designs/gqlgen generate - Als je bewerkingen in je schema hebt gedaan
+
+
+Voor Database functies heb ik in de Dockerfile ook golang-migrate geïnstalleerd, hierna kan je gebruik maken van migration commands
+Om bv de databasee te updaten kun je in je terminal `migrate -path ./migrations/ -database "postgresql://postgres:postgres@db_agenda:5432/agenda_database?sslmode=disable" -verbose up` uitvoeren. Of `migrate -path ./migrations/ -database "postgresql://postgres:postgres@db_agenda:5432/agenda_database?sslmode=disable" -verbose down` om het te verwijderen.
+
+Je kan met de database verbinden via adminer:
+    - Systeem:  PostgreSQL
+    - Server: db_agenda
+    - Username: postgres
+    - Password: postgres
+    - Database: agenda_database
